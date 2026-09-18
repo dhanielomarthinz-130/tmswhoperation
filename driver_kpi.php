@@ -1104,12 +1104,20 @@ date_default_timezone_set('Asia/Jakarta');
 
         function renderRatioChart(summary) {
             const ctx = document.getElementById('ratioChart').getContext('2d');
-            const totalDelivery = summary.total_delivery || 0;
-            const totalPickup = summary.total_pickup || 0;
+            let totalDelivery = summary && summary.total_delivery !== undefined ? Number(summary.total_delivery) : 0;
+            let totalPickup = summary && summary.total_pickup !== undefined ? Number(summary.total_pickup) : 0;
+
+            // Fallback to kpiData if summary is missing data
+            if (!totalDelivery && !totalPickup && Array.isArray(kpiData) && kpiData.length > 0) {
+                totalDelivery = kpiData.reduce((s, r) => s + (Number(r.total_delivery) || 0), 0);
+                totalPickup = kpiData.reduce((s, r) => s + (Number(r.total_pickup) || 0), 0);
+            }
 
             if (ratioChartInstance) {
                 ratioChartInstance.destroy();
             }
+
+            const plugins = typeof ChartDataLabels !== 'undefined' ? [ChartDataLabels] : [];
 
             ratioChartInstance = new Chart(ctx, {
                 type: 'doughnut',
@@ -1123,7 +1131,7 @@ date_default_timezone_set('Asia/Jakarta');
                         hoverOffset: 4
                     }]
                 },
-                plugins: [ChartDataLabels],
+                plugins: plugins,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -1172,12 +1180,16 @@ date_default_timezone_set('Asia/Jakarta');
                 timelineChartInstance.destroy();
             }
 
+            if (!daily || !Array.isArray(daily)) daily = [];
+
             const labels = daily.map(d => {
                 const dt = new Date(d.date);
                 return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
             });
-            const deliveries = daily.map(d => d.delivery);
-            const pickups = daily.map(d => d.pickup);
+            const deliveries = daily.map(d => Number(d.delivery) || 0);
+            const pickups = daily.map(d => Number(d.pickup) || 0);
+
+            const plugins = typeof ChartDataLabels !== 'undefined' ? [ChartDataLabels] : [];
 
             timelineChartInstance = new Chart(ctx, {
                 type: 'line',
@@ -1208,7 +1220,7 @@ date_default_timezone_set('Asia/Jakarta');
                         }
                     ]
                 },
-                plugins: [ChartDataLabels],
+                plugins: plugins,
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -1259,8 +1271,6 @@ date_default_timezone_set('Asia/Jakarta');
                 }
             });
         }
-
-        loadKPI();
     </script>
     <?php include_once __DIR__ . '/profile_modal.php'; ?>
 </body>

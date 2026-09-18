@@ -1067,6 +1067,8 @@ switch ($action) {
 
         // 1. Total Status Summary
         $sqlSummary = "SELECT 
+                           SUM(d.task_type = 'antar') AS total_delivery,
+                           SUM(d.task_type = 'kirim') AS total_pickup,
                            SUM(d.status = 'completed') AS total_completed,
                            SUM(d.status = 'canceled') AS total_canceled,
                            SUM(d.status = 'in_transit' OR d.status = 'pending') AS total_active
@@ -1080,6 +1082,8 @@ switch ($action) {
         // 2. Daily Status
         $sqlDaily = "SELECT 
                           DATE(COALESCE(d.target_date, d.created_at)) AS date_label,
+                          SUM(d.task_type = 'antar') AS total_delivery,
+                          SUM(d.task_type = 'kirim') AS total_pickup,
                           SUM(d.status = 'completed') AS total_completed,
                           COUNT(d.id) AS total_all
                       FROM deliveries d
@@ -1093,6 +1097,8 @@ switch ($action) {
 
         echo json_encode([
             'summary' => [
+                'total_delivery' => (int) ($summary['total_delivery'] ?? 0),
+                'total_pickup' => (int) ($summary['total_pickup'] ?? 0),
                 'total_completed' => (int) ($summary['total_completed'] ?? 0),
                 'total_canceled' => (int) ($summary['total_canceled'] ?? 0),
                 'total_active' => (int) ($summary['total_active'] ?? 0)
@@ -1100,8 +1106,10 @@ switch ($action) {
             'daily' => array_map(function ($row) {
                 return [
                     'date' => $row['date_label'],
-                    'completed' => (int) $row['total_completed'],
-                    'total' => (int) $row['total_all']
+                    'delivery' => (int) ($row['total_delivery'] ?? 0),
+                    'pickup' => (int) ($row['total_pickup'] ?? 0),
+                    'completed' => (int) ($row['total_completed'] ?? 0),
+                    'total' => (int) ($row['total_all'] ?? 0)
                 ];
             }, $daily)
         ]);
@@ -1121,6 +1129,8 @@ switch ($action) {
 
         // 1. Total Status Summary
         $sqlSummary = "SELECT 
+                           COUNT(et.id) AS total_delivery,
+                           0 AS total_pickup,
                            SUM(et.status = 'completed') AS total_completed,
                            SUM(et.status = 'canceled') AS total_canceled,
                            SUM(et.status = 'in_transit' OR et.status = 'pending') AS total_active
@@ -1134,6 +1144,8 @@ switch ($action) {
         // 2. Daily Status
         $sqlDaily = "SELECT 
                           DATE(COALESCE(et.target_date, et.created_at)) AS date_label,
+                          COUNT(et.id) AS total_delivery,
+                          0 AS total_pickup,
                           SUM(et.status = 'completed') AS total_completed,
                           COUNT(et.id) AS total_all
                       FROM expedisi_tasks et
@@ -1147,6 +1159,8 @@ switch ($action) {
 
         echo json_encode([
             'summary' => [
+                'total_delivery' => (int) ($summary['total_delivery'] ?? 0),
+                'total_pickup' => (int) ($summary['total_pickup'] ?? 0),
                 'total_completed' => (int) ($summary['total_completed'] ?? 0),
                 'total_canceled' => (int) ($summary['total_canceled'] ?? 0),
                 'total_active' => (int) ($summary['total_active'] ?? 0)
@@ -1154,8 +1168,10 @@ switch ($action) {
             'daily' => array_map(function ($row) {
                 return [
                     'date' => $row['date_label'],
-                    'completed' => (int) $row['total_completed'],
-                    'total' => (int) $row['total_all']
+                    'delivery' => (int) ($row['total_delivery'] ?? 0),
+                    'pickup' => 0,
+                    'completed' => (int) ($row['total_completed'] ?? 0),
+                    'total' => (int) ($row['total_all'] ?? 0)
                 ];
             }, $daily)
         ]);

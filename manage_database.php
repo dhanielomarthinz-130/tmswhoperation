@@ -544,6 +544,8 @@ $can_write = true;
                 alert('Koneksi ke server gagal.');
                 if (btnDelete) btnDelete.disabled = false;
             }
+        }
+
         // ===== MAINTENANCE MODE CONTROLLER =====
         let isMaintenanceActive = false;
 
