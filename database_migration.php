@@ -319,6 +319,12 @@ try {
     addColumnIfNotExists($pdo, 'users', 'expires_at', 'DATE DEFAULT NULL');
     addColumnIfNotExists($pdo, 'users', 'is_active', 'TINYINT(1) DEFAULT 1');
 
+    // Pastikan akun Daniel Imsula diatur Lifetime (expires_at = NULL) dan selalu aktif
+    $affected = $pdo->exec("UPDATE users SET expires_at = NULL, is_active = 1 WHERE LOWER(name) LIKE '%daniel imsula%' OR LOWER(username) LIKE '%daniel%imsula%' OR LOWER(username) = 'daniel'");
+    if ($affected > 0) {
+        logMsg("SUKSES: Akun Daniel Imsula berhasil disetel sebagai Lifetime (Permanen) dan Aktif.");
+    }
+
     // Kolom baru pada expedisi_tasks
     addColumnIfNotExists($pdo, 'expedisi_tasks', 'sj_files', 'LONGTEXT DEFAULT NULL');
     addColumnIfNotExists($pdo, 'expedisi_tasks', 'proof_files', 'LONGTEXT DEFAULT NULL');

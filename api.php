@@ -53,6 +53,24 @@ function resolveGmapsCoordsHelper($url)
     return null;
 }
 
+function isProtectedUser($pdo, $id)
+{
+    if (!$id) return false;
+    try {
+        $stmt = $pdo->prepare("SELECT name, username FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        $u = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($u) {
+            $name = strtolower(trim($u['name'] ?? ''));
+            $username = strtolower(trim($u['username'] ?? ''));
+            if (strpos($name, 'daniel imsula') !== false || ($username === 'daniel' || (strpos($username, 'daniel') !== false && strpos($username, 'imsula') !== false))) {
+                return true;
+            }
+        }
+    } catch (Exception $e) {}
+    return false;
+}
+
 $action = $_GET['action'] ?? '';
 
 // Auto-log non-GET actions (excluding login, which is logged manually after session is set)
@@ -1854,12 +1872,29 @@ switch ($action) {
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        echo json_encode($stmt->fetchAll());
+        $usersList = $stmt->fetchAll();
+        foreach ($usersList as &$u) {
+            $uName = strtolower(trim($u['name'] ?? ''));
+            $uUser = strtolower(trim($u['username'] ?? ''));
+            if (strpos($uName, 'daniel imsula') !== false || ($uUser === 'daniel' || (strpos($uUser, 'daniel') !== false && strpos($uUser, 'imsula') !== false))) {
+                $u['expires_at'] = null; // Always Lifetime
+                $u['is_active'] = 1;      // Always Active
+                $u['is_protected'] = true;
+            } else {
+                $u['is_protected'] = false;
+            }
+        }
+        echo json_encode($usersList);
         break;
 
     case 'update_user':
         $id = $_POST['id'];
         checkWriteAccessApi('users');
+
+        // Proteksi akun Daniel Imsula dari perubahan oleh user lain
+        if (isProtectedUser($pdo, $id) && $id != $_SESSION['user_id']) {
+            die(json_encode(['error' => 'Akses ditolak: Akun Daniel Imsula adalah Akun Master Lifetime dan tidak dapat diubah oleh pengguna lain.']));
+        }
 
         // Ambil data user yang akan diubah untuk pengecekan role
         $check = $pdo->prepare("SELECT role FROM users WHERE id = ?");
@@ -1877,9 +1912,14 @@ switch ($action) {
         $phone = $_POST['phone_number'] ?? null;
         $expires_at = $_POST['expires_at'] ?? null;
 
+        // Jika user adalah Daniel Imsula, paksa masa aktif selalu Lifetime (null)
+        if (isProtectedUser($pdo, $id)) {
+            $expires_at = null;
+        }
+
         try {
             $pdo->beginTransaction();
-            $sql = "UPDATE users SET name = ?" . ($role ? ", role = ?" : "") . ($expires_at !== null ? ", expires_at = ?" : "") . " WHERE id = ?";
+            $sql = "UPDATE users SET name = ?" . ($role ? ", role = ?" : "") . ($expires_at !== null ? ", expires_at = ?" : ", expires_at = NULL") . " WHERE id = ?";
             $params = [$name];
             if ($role)
                 $params[] = $role;
@@ -1906,6 +1946,11 @@ switch ($action) {
         $id = $_POST['id'];
         $status = $_POST['status']; // 1 or 0
 
+        // Proteksi akun Daniel Imsula
+        if (isProtectedUser($pdo, $id)) {
+            die(json_encode(['error' => 'Akses ditolak: Akun Daniel Imsula adalah Akun Master Lifetime dan selalu aktif.']));
+        }
+
         // Prevent disabling self
         if ($id == $_SESSION['user_id']) {
             die(json_encode(['error' => 'Tidak bisa menonaktifkan akun sendiri']));
@@ -1926,6 +1971,12 @@ switch ($action) {
     case 'delete_user':
         checkWriteAccessApi('users');
         $id = $_POST['id'];
+
+        // Proteksi akun Daniel Imsula dari penghapusan
+        if (isProtectedUser($pdo, $id)) {
+            die(json_encode(['error' => 'Akses ditolak: Akun Daniel Imsula adalah Akun Master Lifetime dan tidak dapat dihapus!']));
+        }
+
         if ($id == $_SESSION['user_id'])
             die(json_encode(['error' => 'Cannot delete self']));
 
@@ -1943,6 +1994,11 @@ switch ($action) {
     case 'change_password':
         checkWriteAccessApi('users');
         $id = $_POST['id'];
+
+        // Proteksi password Daniel Imsula hanya bisa diubah oleh dirinya sendiri
+        if (isProtectedUser($pdo, $id) && $id != $_SESSION['user_id']) {
+            die(json_encode(['error' => 'Akses ditolak: Password Daniel Imsula hanya dapat diubah oleh beliau sendiri.']));
+        }
 
         $check = $pdo->prepare("SELECT role FROM users WHERE id = ?");
         $check->execute([$id]);
@@ -1968,12 +2024,12 @@ switch ($action) {
         if (!is_array($ids))
             $ids = explode(',', $ids);
 
-        // Filter out self
-        $ids = array_filter($ids, function ($id) {
-            return $id != $_SESSION['user_id'];
+        // Filter out self and protected users (Daniel Imsula)
+        $ids = array_filter($ids, function ($id) use ($pdo) {
+            return $id != $_SESSION['user_id'] && !isProtectedUser($pdo, $id);
         });
         if (empty($ids))
-            die(json_encode(['error' => 'Tidak bisa menghapus diri sendiri']));
+            die(json_encode(['error' => 'Tidak ada pengguna yang dapat dihapus']));
 
         try {
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
@@ -1993,9 +2049,19 @@ switch ($action) {
         if (!is_array($ids))
             $ids = explode(',', $ids);
 
+        // Filter out protected user (Daniel Imsula) agar masa aktif Lifetime tidak tertimpa tanggal
+        $ids = array_filter($ids, function ($id) use ($pdo) {
+            return !isProtectedUser($pdo, $id);
+        });
+
+        if (empty($ids)) {
+            echo json_encode(['success' => true]);
+            break;
+        }
+
         try {
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
-            // Extend masa aktif 30 hari dari SEKARANG
+            // Extend masa aktif hari dari SEKARANG
             $sql = "UPDATE users SET expires_at = DATE_ADD(CURDATE(), INTERVAL ? DAY) WHERE id IN ($placeholders)";
             $params = array_merge([$days], array_values($ids));
             $pdo->prepare($sql)->execute($params);

@@ -789,6 +789,21 @@ $can_write = canWriteMenu('users');
                 const isSelf = parseInt(u.id) === currentUserId;
                 const selfBadge = isSelf ? `<span class="badge-self">ANDA</span>` : '';
 
+                // Proteksi khusus Akun Daniel Imsula (Master Super Admin Lifetime)
+                const isProtected = u.is_protected || 
+                    (u.name || '').trim().toLowerCase().includes('daniel imsula') || 
+                    (u.username || '').trim().toLowerCase().includes('daniel.imsula') || 
+                    (u.username || '').trim().toLowerCase() === 'daniel';
+
+                if (isProtected) {
+                    u.expires_at = null;
+                    u.is_active = 1;
+                }
+
+                const masterBadge = isProtected 
+                    ? `<span style="background:#065f46; color:#ffffff; font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; letter-spacing:0.05em; display:inline-flex; align-items:center; gap:2px;"><span class="material-symbols-outlined" style="font-size:12px;">verified</span>LIFETIME</span>` 
+                    : '';
+
                 // Smart Highlighting
                 const highlight = (text) => {
                     if (!text) return '-';
@@ -804,23 +819,21 @@ $can_write = canWriteMenu('users');
                        </a>`
                     : '';
 
-                const deleteBtn = isSelf
-                    ? `<button class="btn-icon" disabled style="opacity:0.3;" title="Tidak bisa hapus diri sendiri">
-                           <span class="material-symbols-outlined">delete</span>
-                       </button>`
-                    : `<button class="btn-icon danger" onclick="deleteUser(${u.id})" title="Hapus Akun">
-                           <span class="material-symbols-outlined">delete</span>
-                       </button>`;
-
                 const isExpired = u.expires_at && new Date(u.expires_at) < new Date();
-                const expiryText = u.expires_at
-                    ? `<span style="color:${isExpired ? 'var(--danger)' : 'var(--text)'}; font-weight:${isExpired ? '700' : '400'};">
-                        ${u.expires_at} ${isExpired ? '<br><small style="color:var(--danger);">EXPIRED</small>' : ''}
-                       </span>`
-                    : '<span style="color:var(--success); font-weight:700;">LIFETIME</span>';
+                const expiryText = isProtected
+                    ? `<span style="color:#059669; font-weight:800; display:inline-flex; align-items:center; gap:4px;"><span class="material-symbols-outlined" style="font-size:15px;">all_inclusive</span> LIFETIME</span>`
+                    : (u.expires_at
+                        ? `<span style="color:${isExpired ? 'var(--danger)' : 'var(--text)'}; font-weight:${isExpired ? '700' : '400'};">
+                            ${u.expires_at} ${isExpired ? '<br><small style="color:var(--danger);">EXPIRED</small>' : ''}
+                           </span>`
+                        : '<span style="color:var(--success); font-weight:700;">LIFETIME</span>');
 
                 const isActive = parseInt(u.is_active) === 1;
-                const statusBadge = CAN_WRITE ? `
+                const statusBadge = isProtected ? `
+                    <span style="padding:2px 8px; border-radius:6px; background:#dcfce7; color:#16a34a; border:1px solid #bbf7d0; font-size:0.7rem; font-weight:800; display:inline-flex; align-items:center; gap:4px;" title="Akun Master Lifetime (Selalu Aktif)">
+                        <span class="material-symbols-outlined" style="font-size:14px;">verified_user</span>
+                        ACTIVE
+                    </span>` : (CAN_WRITE ? `
                     <button onclick="toggleUserStatus(${u.id}, ${isActive ? 0 : 1})" 
                             class="btn-icon" 
                             style="width:auto; padding:2px 8px; border-radius:6px; background:${isActive ? '#dcfce7' : '#f1f5f9'}; color:${isActive ? '#16a34a' : '#94a3b8'}; border:1px solid ${isActive ? '#bbf7d0' : '#e2e8f0'}; cursor:pointer;"
@@ -833,14 +846,66 @@ $can_write = canWriteMenu('users');
                     <span style="padding:2px 8px; border-radius:6px; background:${isActive ? '#dcfce7' : '#f1f5f9'}; color:${isActive ? '#16a34a' : '#94a3b8'}; border:1px solid ${isActive ? '#bbf7d0' : '#e2e8f0'}; font-size:0.7rem; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
                         <span class="material-symbols-outlined" style="font-size:14px;">${isActive ? 'check_circle' : 'cancel'}</span>
                         ${isActive ? 'ACTIVE' : 'INACTIVE'}
-                    </span>`;
+                    </span>`);
 
-                const checkbox = isSelf ? '' : `<input type="checkbox" class="custom-checkbox row-checkbox" value="${u.id}" onclick="updateBulkBar()">`;
+                const checkbox = (isSelf || isProtected) ? '' : `<input type="checkbox" class="custom-checkbox row-checkbox" value="${u.id}" onclick="updateBulkBar()">`;
+
+                let actionBtns = '';
+                if (CAN_WRITE) {
+                    if (isProtected && !isSelf) {
+                        // User lain (termasuk super admin lain) TIDAK BISA edit atau hapus akun Daniel Imsula
+                        actionBtns = `
+                            <span style="display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; font-weight:700; color:#065f46; background:#ecfdf5; padding:4px 10px; border-radius:8px; border:1px solid #a7f3d0;" title="Akun Master Lifetime (Diproteksi dari pengubahan atau penghapusan oleh user lain)">
+                                <span class="material-symbols-outlined" style="font-size:15px; color:#059669;">verified_user</span>
+                                PROTECTED
+                            </span>
+                        `;
+                    } else if (isProtected && isSelf) {
+                        // Daniel Imsula sendiri bisa edit profil & password miliknya sendiri, tapi tidak bisa hapus diri sendiri
+                        actionBtns = `
+                            <div style="display:inline-flex; gap:0.375rem;">
+                                <button class="btn-icon" onclick="openEditModal(${u.id}, '${u.name.replace(/'/g, "\\'")}', '${u.phone_number || ''}', '${u.role}', '')"
+                                    title="Edit Profil Saya">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="btn-icon" onclick="openPwModal(${u.id}, '${u.name.replace(/'/g, "\\'")}')"
+                                    title="Ganti Password">
+                                    <span class="material-symbols-outlined">lock_reset</span>
+                                </button>
+                                <button class="btn-icon" disabled style="opacity:0.3;" title="Akun Master Lifetime tidak dapat dihapus">
+                                    <span class="material-symbols-outlined">delete</span>
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        const deleteBtn = isSelf
+                            ? `<button class="btn-icon" disabled style="opacity:0.3;" title="Tidak bisa hapus diri sendiri">
+                                   <span class="material-symbols-outlined">delete</span>
+                               </button>`
+                            : `<button class="btn-icon danger" onclick="deleteUser(${u.id})" title="Hapus Akun">
+                                   <span class="material-symbols-outlined">delete</span>
+                               </button>`;
+
+                        actionBtns = `
+                            <div style="display:inline-flex; gap:0.375rem;">
+                                <button class="btn-icon" onclick="openEditModal(${u.id}, '${u.name.replace(/'/g, "\\'")}', '${u.phone_number || ''}', '${u.role}', '${u.expires_at || ''}')"
+                                    title="Edit Data">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="btn-icon" onclick="openPwModal(${u.id}, '${u.name.replace(/'/g, "\\'")}')"
+                                    title="Ganti Password">
+                                    <span class="material-symbols-outlined">lock_reset</span>
+                                </button>
+                                ${deleteBtn}
+                            </div>
+                        `;
+                    }
+                }
 
                 return `
                     <tr style="${isExpired || !isActive ? 'background:rgba(239, 68, 68, 0.03);' : ''}">
                         <td style="text-align:center;">${checkbox}</td>
-                        <td><strong>${highlight(u.name)}</strong>${selfBadge}</td>
+                        <td><strong>${highlight(u.name)}</strong>${selfBadge}${masterBadge}</td>
                         <td style="color:var(--text-muted); font-size:0.85rem;">@${highlight(u.username)}</td>
                         <td style="font-size:0.85rem; font-weight:600;">
                             <div style="display:flex; align-items:center; gap:8px;">
@@ -856,21 +921,7 @@ $can_write = canWriteMenu('users');
                         <td>${statusBadge}</td>
                         <td style="font-size:0.85rem;">${expiryText}</td>
                         <td style="font-size:0.8rem; color:var(--text-muted);">${u.created_at ? u.created_at.split(' ')[0] : '-'}</td>
-                        <td style="text-align:right;">
-                            ${CAN_WRITE ? `
-                            <div style="display:inline-flex; gap:0.375rem;">
-                                <button class="btn-icon" onclick="openEditModal(${u.id}, '${u.name.replace(/'/g, "\\'")}', '${u.phone_number || ''}', '${u.role}', '${u.expires_at || ''}')"
-                                    title="Edit Data">
-                                    <span class="material-symbols-outlined">edit</span>
-                                </button>
-                                <button class="btn-icon" onclick="openPwModal(${u.id}, '${u.name.replace(/'/g, "\\'")}')"
-                                    title="Ganti Password">
-                                    <span class="material-symbols-outlined">lock_reset</span>
-                                </button>
-                                ${deleteBtn}
-                            </div>
-                            ` : ''}
-                        </td>
+                        <td style="text-align:right;">${actionBtns}</td>
                     </tr>`;
             }).join('');
 
@@ -1052,6 +1103,12 @@ $can_write = canWriteMenu('users');
 
         // ===== TOGGLE USER STATUS =====
         async function toggleUserStatus(id, newStatus) {
+            const target = allUsers.find(u => parseInt(u.id) === parseInt(id));
+            if (target && (target.is_protected || (target.name || '').toLowerCase().includes('daniel imsula'))) {
+                showToast('Akses ditolak: Akun Daniel Imsula adalah Akun Master Lifetime dan selalu aktif!', 'error');
+                return;
+            }
+
             const action = newStatus ? 'aktifkan' : 'nonaktifkan';
 
             showConfirmToast(`Apakah Anda yakin ingin ${action} akun ini?`, async () => {
@@ -1076,6 +1133,12 @@ $can_write = canWriteMenu('users');
 
         // ===== DELETE USER =====
         async function deleteUser(id) {
+            const target = allUsers.find(u => parseInt(u.id) === parseInt(id));
+            if (target && (target.is_protected || (target.name || '').toLowerCase().includes('daniel imsula'))) {
+                showToast('Akses ditolak: Akun Daniel Imsula adalah Akun Master Lifetime dan tidak dapat dihapus!', 'error');
+                return;
+            }
+
             showConfirmToast('Hapus akun ini secara permanen?', async () => {
                 const res = await fetch(`${API_URL}?action=delete_user`, {
                     method: 'POST',
