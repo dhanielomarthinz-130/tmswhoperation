@@ -43,30 +43,36 @@ $is_mgmt_open = (
         <span class="material-symbols-outlined">chevron_left</span>
     </button>
     <!-- Brand area -->
-    <a href="<?php echo ($role == 'driver') ? 'driver' : 'dashboard_summary'; ?>" class="sidebar-brand" style="flex-direction:column; align-items:flex-start; padding:1rem 1rem 0.75rem; gap:0.5rem;">
+    <a href="<?php echo ($role == 'driver') ? 'driver' : 'dashboard_summary'; ?>" class="sidebar-brand" style="flex-direction:column; align-items:flex-start; padding:1.15rem 1rem 0.85rem; gap:0.6rem;">
         <!-- Company Logo - visible in expanded state -->
         <div class="sidebar-brand-logo" style="
             background: #ffffff;
-            border-radius: 10px;
-            padding: 6px 10px;
+            border-radius: 12px;
+            padding: 7px 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.9);
             transition: all 0.3s ease;
         ">
             <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="PT Royal Pesona Indonesia"
                  style="height:38px; width:auto; max-width:100%; object-fit:contain; display:block;">
         </div>
         <!-- Compact icon for collapsed sidebar state -->
-        <div class="sidebar-brand-icon-sm" style="display:none; width:36px; height:36px; border-radius:8px; overflow:hidden; background:#fff; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.25);">
+        <div class="sidebar-brand-icon-sm" style="display:none; width:38px; height:38px; border-radius:10px; overflow:hidden; background:#fff; flex-shrink:0; box-shadow:0 3px 10px rgba(0,0,0,0.3); align-items:center; justify-content:center;">
             <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="Logo"
-                 style="width:36px; height:36px; object-fit:cover;">
+                 style="width:36px; height:36px; object-fit:contain;">
         </div>
-        <div class="sidebar-brand-text" style="margin-top:2px;">
-            <strong>T M S - Warehouse</strong>
-            <small>PT Royal Pesona Indonesia</small>
+        <div class="sidebar-brand-text" style="width:100%; margin-top:2px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                <strong style="font-size:0.875rem; font-weight:700; color:#f8fafc; letter-spacing:0.02em;">T M S - Warehouse</strong>
+                <span style="font-size:0.58rem; font-weight:700; padding:1px 6px; border-radius:4px; background:rgba(2,132,199,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); text-transform:uppercase;">Live</span>
+            </div>
+            <small style="font-size:0.68rem; color:#7dd3fc; display:flex; align-items:center; gap:5px; margin-top:3px;">
+                <span style="width:5px; height:5px; border-radius:50%; background:#0284c7; box-shadow:0 0 6px #38bdf8; display:inline-block;"></span>
+                PT Royal Pesona Indonesia
+            </small>
         </div>
     </a>
 
@@ -105,8 +111,8 @@ $is_mgmt_open = (
                             <span class="nav-text">Tracking Driver WH</span>
                             <div style="margin-left:auto; display:flex; align-items:center; gap:6px;">
                                 <span id="sidebarGpsAlertBadge" class="badge badge-pending"
-                                    style="display:none; padding: 2px 6px; font-size: 0.6rem; background:#ef4444; color:white; border:none; border-radius:99px; animation: pulse 2s infinite;">0</span>
-                                <span class="pulse-dot"></span>
+                                    style="display:none; padding: 2px 7px; font-size: 0.6rem; background:#ef4444; color:white; border:none; border-radius:99px; animation: pulse 2s infinite;">0</span>
+                                <span class="pulse-dot" style="background:#38bdf8; box-shadow:0 0 8px #38bdf8;"></span>
                             </div>
                         </a>
                     <?php endif; ?>
@@ -119,9 +125,9 @@ $is_mgmt_open = (
                             <span class="nav-text">Penugasan Driver</span>
                             <div style="margin-left:auto; display:flex; gap:4px; align-items:center;">
                                 <span id="sidebarWHBadge" class="badge"
-                                    style="display:none; padding: 2px 6px; font-size: 0.6rem; background:#ef4444; color:white; border:none; font-weight:800; border-radius:99px; animation: badgePulse 2s infinite;">0</span>
+                                    style="display:none; padding: 2px 7px; font-size: 0.62rem; background:#ef4444; color:white; border:none; font-weight:700; border-radius:99px; box-shadow:0 2px 6px rgba(239,68,68,0.4); animation: badgePulse 2s infinite;">0</span>
                                 <span id="sidebarExpBadge" class="badge"
-                                    style="display:none; padding: 2px 6px; font-size: 0.6rem; background:#f59e0b; color:white; border:none; font-weight:800; border-radius:99px;">0</span>
+                                    style="display:none; padding: 2px 7px; font-size: 0.62rem; background:linear-gradient(135deg, #0284c7, #027dc3); color:white; border:none; font-weight:700; border-radius:99px; box-shadow:0 2px 8px rgba(2,132,199,0.35);">0</span>
                             </div>
                         </a>
                     <?php endif; ?>
