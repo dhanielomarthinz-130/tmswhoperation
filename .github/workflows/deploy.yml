@@ -23,7 +23,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER || 'ftpupload.net' }}
           username: ${{ secrets.FTP_USERNAME || 'if0_38464190' }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /htdocs/
+          server-dir: /tmswhoperation.rf.gd/htdocs/
           protocol: ftp
           dangerous-clean-slate: false
           exclude: |
