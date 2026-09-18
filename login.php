@@ -524,7 +524,7 @@
                 </div>
 
                 <div class="logo-box">
-                    <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="PT Royal Pesona Indonesia" style="width:52px;height:52px;border-radius:10px;object-fit:cover;">
+                    <img src="assets/favicon_d.jpg" alt="D Logo" style="width:52px;height:52px;border-radius:12px;object-fit:cover;">
                 </div>
 
                 <h1>TMS <span class="brand-highlight">Warehouse</span></h1>
