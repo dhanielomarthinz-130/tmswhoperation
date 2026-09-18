@@ -19,7 +19,7 @@ date_default_timezone_set('Asia/Jakarta');
 
 // Get initial pending counts for tabs
 $init_wh = $pdo->query("SELECT COUNT(*) FROM pickup_requests WHERE status = 'pending'")->fetchColumn();
-$init_exp = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pending'")->fetchColumn();
+$init_exp = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pending' AND (target_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') OR (target_date IS NULL AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')))")->fetchColumn();
 ?>
 <!DOCTYPE html>
 <html lang="id">

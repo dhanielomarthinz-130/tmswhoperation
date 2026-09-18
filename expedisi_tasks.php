@@ -6,7 +6,7 @@ $can_write = canWriteMenu('assign_tasks');
 
 // Get initial pending counts for tabs
 $init_wh = $pdo->query("SELECT COUNT(*) FROM pickup_requests WHERE status = 'pending'")->fetchColumn();
-$init_exp = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pending'")->fetchColumn();
+$init_exp = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pending' AND (target_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') OR (target_date IS NULL AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')))")->fetchColumn();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -1335,6 +1335,27 @@ $init_exp = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pen
                 document.getElementById('btnNext').disabled = end >= total;
 
                 document.getElementById('dataCount').innerText = `${total} data`;
+
+                // Update tab and sidebar badges to accurately reflect pending tasks in current view
+                const pendingInView = data.filter(t => t.status === 'pending').length;
+                const badgeExp = document.getElementById('tabBadgeExp');
+                if (badgeExp) {
+                    if (pendingInView > 0) {
+                        badgeExp.textContent = pendingInView;
+                        badgeExp.style.display = 'inline-flex';
+                    } else {
+                        badgeExp.style.display = 'none';
+                    }
+                }
+                const sidebarExp = document.getElementById('sidebarExpBadge');
+                if (sidebarExp) {
+                    if (pendingInView > 0) {
+                        sidebarExp.textContent = pendingInView;
+                        sidebarExp.style.display = 'inline-block';
+                    } else {
+                        sidebarExp.style.display = 'none';
+                    }
+                }
 
                 if (total === 0) {
                     body.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:2rem; color:var(--text-muted);">Belum ada data expedisi.</td></tr>';

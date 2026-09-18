@@ -3107,13 +3107,12 @@ switch ($action) {
     case 'get_pending_counts':
         $p1 = $pdo->query("SELECT COUNT(*) FROM pickup_requests WHERE status = 'pending'")->fetchColumn();
         // Count only ACTIVE expedisi tasks (pending = not yet started, in_transit = currently active)
-        // Completed and Canceled are excluded from the badge count
-        $p2 = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status IN ('pending', 'in_transit')")->fetchColumn();
-        // For tab badge specifically, only show PENDING (tasks needing attention/assignment)
-        $p2_pending_only = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pending'")->fetchColumn();
+        $p2 = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status IN ('pending', 'in_transit') AND (target_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') OR (target_date IS NULL AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')))")->fetchColumn();
+        // For tab and sidebar badge specifically, only show current month's PENDING tasks needing attention
+        $p2_pending_only = $pdo->query("SELECT COUNT(*) FROM expedisi_tasks WHERE status = 'pending' AND (target_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') OR (target_date IS NULL AND created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')))")->fetchColumn();
         echo json_encode([
             'pickup'   => (int) $p1,
-            'expedisi' => (int) $p2_pending_only,  // Tab badge: pending only (needs attention)
+            'expedisi' => (int) $p2_pending_only,  // Tab badge: pending only (needs attention, current period)
             'expedisi_active' => (int) $p2,         // Active count: pending + in_transit
             'total'    => (int) $p1 + (int) $p2_pending_only
         ]);
