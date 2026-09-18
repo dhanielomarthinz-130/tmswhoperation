@@ -516,12 +516,6 @@
     <div class="login-wrapper">
         <div class="login-card">
             <div class="brand-header">
-                <div>
-                    <div class="badge-pill">
-                        <span class="badge-dot"></span>
-                    </div>
-                </div>
-
                 <div class="logo-box">
                     <img src="assets/favicon_d.jpg" alt="D Logo" style="width:52px;height:52px;border-radius:12px;object-fit:cover;">
                 </div>
