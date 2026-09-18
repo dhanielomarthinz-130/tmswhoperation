@@ -4,192 +4,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TMS | Transport Management System</title>
+    <title>TMS Warehouse | Enterprise Login</title>
     <link rel="icon" type="image/png" href="favicon.png">
 
-    <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+    <!-- Premium Google Fonts: Plus Jakarta Sans & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <style>
         :root {
-            --bg-base: #f8fafc;
-            --bg-card: #ffffff;
-            --bg-input: #f8fafc;
-
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --primary-light: #6366f1;
-            --accent: #0284c7;
-
-            --border-color: #e2e8f0;
-            --border-focused: #6366f1;
-
-            --text-heading: #0f172a;
-            --text-body: #334155;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-glow: rgba(16, 185, 129, 0.35);
+            --secondary: #06b6d4;
+            --accent: #6366f1;
+            
+            --bg-deep: #080d1a;
+            --card-bg: rgba(15, 23, 42, 0.72);
+            --card-border: rgba(255, 255, 255, 0.1);
+            
+            --input-bg: rgba(30, 41, 59, 0.65);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --input-focus-border: #10b981;
+            
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
             --text-muted: #64748b;
-
-            --danger-bg: #fef2f2;
-            --danger-border: #fecaca;
-            --danger-text: #dc2626;
-
-            --success: #10b981;
         }
 
-        *,
-        *::before,
-        *::after {
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             min-height: 100vh;
             min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--bg-base);
-            background-image:
-                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
-                radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.06) 0%, transparent 45%);
-            color: var(--text-body);
+            background-color: var(--bg-deep);
+            color: var(--text-main);
             padding: 1.5rem;
             position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ─── Ambient Glow Mesh Background ─── */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .mesh-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.45;
+            will-change: transform;
+            animation: orbFloat 18s ease-in-out infinite alternate;
+        }
+
+        .mesh-orb-1 {
+            width: 520px;
+            height: 520px;
+            background: radial-gradient(circle, #059669 0%, rgba(6, 182, 212, 0.4) 60%, transparent 80%);
+            top: -120px;
+            left: -100px;
+        }
+
+        .mesh-orb-2 {
+            width: 580px;
+            height: 580px;
+            background: radial-gradient(circle, #4f46e5 0%, rgba(16, 185, 129, 0.3) 60%, transparent 80%);
+            bottom: -150px;
+            right: -120px;
+            animation-duration: 22s;
+            animation-delay: -5s;
+        }
+
+        .mesh-orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, transparent 70%);
+            top: 45%;
+            left: 55%;
+            animation-duration: 16s;
+            animation-delay: -10s;
+        }
+
+        /* Subtle Grid Pattern */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(40px, 50px) scale(1.08);
+            }
+            100% {
+                transform: translate(-30px, 30px) scale(0.95);
+            }
+        }
+
+        /* ─── Modern Glassmorphic Login Card ─── */
+        .login-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            perspective: 1000px;
         }
 
         .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow:
-                0 20px 40px -15px rgba(15, 23, 42, 0.07),
-                0 1px 3px rgba(15, 23, 42, 0.04);
-            padding: 2.5rem 2.25rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 2.75rem 2.25rem 2.25rem;
+            box-shadow: 
+                0 30px 70px -15px rgba(0, 0, 0, 0.65),
+                0 0 40px rgba(16, 185, 129, 0.08),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15);
             position: relative;
-            z-index: 10;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
         }
 
+        /* Top Accent Highlight Bar */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #10b981, #06b6d4, transparent);
+            border-radius: 2px;
+        }
+
+        /* ─── Header & Branding ─── */
         .brand-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.2rem;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 0.3rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #34d399;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.7; }
         }
 
         .logo-box {
-            width: 56px;
-            height: 56px;
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
-            border-radius: 16px;
+            position: relative;
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+            margin-bottom: 1.1rem;
+            box-shadow: 
+                0 10px 25px -5px rgba(0, 0, 0, 0.4),
+                0 0 25px rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .logo-box:hover {
+            transform: translateY(-2px) scale(1.03);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 
+                0 14px 30px -5px rgba(0, 0, 0, 0.5),
+                0 0 35px rgba(16, 185, 129, 0.35);
         }
 
         .logo-box img {
-            width: 38px;
-            height: 38px;
+            width: 44px;
+            height: 44px;
             object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
         }
 
         .brand-header h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.75rem;
+            font-size: 1.85rem;
             font-weight: 700;
-            color: var(--text-heading);
+            color: #ffffff;
             letter-spacing: -0.5px;
             margin-bottom: 0.35rem;
+            line-height: 1.2;
         }
 
-        .brand-header h1 span {
-            color: var(--primary);
+        .brand-header h1 .brand-highlight {
+            background: linear-gradient(135deg, #34d399 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .brand-header p {
-            font-size: 0.875rem;
-            color: var(--text-muted);
+            font-size: 0.86rem;
+            color: var(--text-sub);
+            font-weight: 400;
         }
 
+        /* ─── Alerts & Banners ─── */
         .error-alert {
-            background: var(--danger-bg);
-            border: 1px solid var(--danger-border);
-            color: var(--danger-text);
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #fca5a5;
             padding: 0.85rem 1rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
+            border-radius: 14px;
+            font-size: 0.84rem;
             font-weight: 500;
             margin-bottom: 1.5rem;
             display: none;
             align-items: center;
             gap: 0.75rem;
+            backdrop-filter: blur(12px);
             animation: form-shake 0.4s ease-in-out;
+            line-height: 1.4;
         }
 
         @keyframes form-shake {
             0%, 100% { transform: translateX(0); }
-            25%, 75% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
         }
 
         .error-alert .material-symbols-outlined {
-            font-size: 20px;
-            color: var(--danger-text);
+            font-size: 22px;
+            color: inherit;
             flex-shrink: 0;
         }
 
+        /* ─── Form Elements ─── */
         .form-group {
-            margin-bottom: 1.4rem;
+            margin-bottom: 1.35rem;
         }
 
-        .form-group label {
-            display: block;
+        .form-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-family: 'Outfit', sans-serif;
-            font-size: 0.76rem;
-            font-weight: 700;
-            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #cbd5e1;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.55rem;
         }
 
         .input-container {
             position: relative;
             display: flex;
             align-items: center;
-            border-radius: 14px;
-            border: 1.5px solid #e2e8f0;
-            background: #ffffff;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            border: 1.5px solid var(--input-border);
+            background: var(--input-bg);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
         }
 
         .input-container:hover {
-            border-color: #cbd5e1;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(30, 41, 59, 0.8);
         }
 
         .input-container.focused {
-            border-color: #4f46e5;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), 0 2px 8px rgba(79, 70, 229, 0.05);
+            border-color: var(--input-focus-border);
+            background: rgba(30, 41, 59, 0.95);
+            box-shadow: 
+                0 0 0 4px rgba(16, 185, 129, 0.2),
+                0 6px 20px rgba(16, 185, 129, 0.12);
         }
 
         .input-icon {
             position: absolute;
-            left: 1rem;
+            left: 1.05rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #94a3b8;
+            color: #64748b;
             font-size: 20px;
-            transition: color 0.2s ease;
+            transition: all 0.25s ease;
             pointer-events: none;
             display: flex;
             align-items: center;
@@ -197,178 +344,274 @@
         }
 
         .input-container.focused .input-icon {
-            color: #4f46e5;
+            color: #34d399;
+            transform: translateY(-50%) scale(1.1);
         }
 
         input {
             width: 100%;
-            height: 48px;
-            padding: 0 1rem 0 2.85rem;
+            height: 52px;
+            padding: 0 1rem 0 3.1rem;
             background: transparent;
             border: none;
             outline: none !important;
             box-shadow: none !important;
-            color: var(--text-heading);
+            color: #f8fafc;
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.95rem;
             font-weight: 500;
-            border-radius: 14px;
+            border-radius: 16px;
             -webkit-appearance: none;
             appearance: none;
         }
 
-        input:focus {
-            outline: none !important;
-            box-shadow: none !important;
+        input::placeholder {
+            color: #64748b;
+            font-weight: 400;
         }
 
-        /* Fix Chrome/Edge/Safari Browser Autofill Blue Box */
+        /* Fix Autofill background styles in dark mode */
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
         input:-webkit-autofill:focus,
         input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-            -webkit-text-fill-color: #0f172a !important;
+            -webkit-box-shadow: 0 0 0 1000px #172033 inset !important;
+            -webkit-text-fill-color: #f8fafc !important;
             transition: background-color 5000s ease-in-out 0s;
-            border-radius: 14px;
-        }
-
-        input::placeholder {
-            color: #94a3b8;
-            font-weight: 400;
+            border-radius: 16px;
         }
 
         input.has-toggle {
-            padding-right: 3rem;
+            padding-right: 3.2rem;
         }
 
         .toggle-pwd-btn {
             position: absolute;
-            right: 1rem;
+            right: 0.9rem;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
+            background: rgba(255, 255, 255, 0.04);
             border: none;
-            color: #94a3b8;
+            color: #64748b;
             cursor: pointer;
-            padding: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.2s ease;
+            transition: all 0.2s ease;
             outline: none !important;
         }
 
         .toggle-pwd-btn:hover {
-            color: var(--text-heading);
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.1);
         }
 
+        .toggle-pwd-btn .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        /* ─── Submit Button ─── */
         .btn-submit {
             width: 100%;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            height: 52px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #06b6d4 100%);
             color: #ffffff;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
+            font-size: 1.02rem;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 0.5rem;
-            box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.35);
-            transition: all 0.2s ease;
+            margin-top: 0.75rem;
+            box-shadow: 
+                0 10px 25px -4px rgba(16, 185, 129, 0.45),
+                0 0 20px rgba(6, 182, 212, 0.2);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hover Shimmer Effect */
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transform: skewX(-20deg);
+            transition: 0.6s ease;
         }
 
         .btn-submit:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 24px -3px rgba(79, 70, 229, 0.45);
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 
+                0 14px 32px -4px rgba(16, 185, 129, 0.55),
+                0 0 30px rgba(6, 182, 212, 0.35);
+        }
+
+        .btn-submit:hover::after {
+            left: 150%;
         }
 
         .btn-submit:active {
             transform: translateY(0);
         }
 
+        .btn-submit .btn-arrow {
+            transition: transform 0.2s ease;
+            font-size: 20px;
+        }
+
+        .btn-submit:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
         .btn-submit:disabled {
-            opacity: 0.7;
+            opacity: 0.75;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
         }
 
+        /* ─── Security Badge & Footer ─── */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            margin-top: 1.75rem;
+            font-size: 0.74rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .security-badge .material-symbols-outlined {
+            font-size: 16px;
+            color: #34d399;
+        }
+
         .copyright-footer {
-            margin-top: 2rem;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
             text-align: center;
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .copyright-footer .powered-by {
+            font-size: 0.71rem;
+            color: #475569;
+            margin-top: 0.25rem;
         }
 
         @media (max-width: 480px) {
             body {
                 padding: 1rem;
-                background-image: none;
             }
 
             .login-card {
-                padding: 2rem 1.5rem;
-                border-radius: 20px;
+                padding: 2.25rem 1.5rem 1.75rem;
+                border-radius: 22px;
+            }
+
+            .brand-header h1 {
+                font-size: 1.65rem;
+            }
+
+            .mesh-orb-1, .mesh-orb-2 {
+                opacity: 0.3;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="login-card">
-        <div class="brand-header">
-            <div class="logo-box">
-                <img src="favicon.png" alt="TMS Logo">
-            </div>
-            <h1>TMS <span>Warehouse</span></h1>
-            <p>Silakan masuk ke akun TMS Anda</p>
-        </div>
+    <!-- Ambient Animated Mesh Gradient -->
+    <div class="bg-mesh">
+        <div class="mesh-orb mesh-orb-1"></div>
+        <div class="mesh-orb mesh-orb-2"></div>
+        <div class="mesh-orb mesh-orb-3"></div>
+    </div>
+    <div class="bg-grid"></div>
 
-        <div id="errorMessage" class="error-alert">
-            <span class="material-symbols-outlined">warning</span>
-            <span id="errorText">Gagal melakukan verifikasi masuk</span>
-        </div>
-
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="usernameInput">Username</label>
-                <div class="input-container" id="usernameWrapper">
-                    <span class="material-symbols-outlined input-icon">account_circle</span>
-                    <input type="text" id="usernameInput" name="username" placeholder="Masukkan username" required
-                        autocomplete="username">
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="brand-header">
+                <div>
+                    <div class="badge-pill">
+                        <span class="badge-dot"></span>
+                        <span>Somethinc • Beautyhaul Logistics</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="passwordInput">Password</label>
-                <div class="input-container" id="passwordWrapper">
-                    <span class="material-symbols-outlined input-icon">lock</span>
-                    <input type="password" id="passwordInput" class="has-toggle" name="password"
-                        placeholder="Masukkan password" required autocomplete="current-password">
-                    <button type="button" class="toggle-pwd-btn" onclick="togglePass()"
-                        aria-label="Toggle password">
-                        <span class="material-symbols-outlined" id="toggleIcon">visibility</span>
-                    </button>
+                <div class="logo-box">
+                    <img src="favicon.png" alt="TMS Logo">
                 </div>
+
+                <h1>TMS <span class="brand-highlight">Warehouse</span></h1>
+                <p>Silakan masuk ke akun operasional Anda</p>
             </div>
 
-            <button type="submit" class="btn-submit" id="submitBtn">
-                <span>Masuk</span>
-                <span class="material-symbols-outlined">arrow_forward</span>
-            </button>
-        </form>
+            <!-- Error / Notification Alert -->
+            <div id="errorMessage" class="error-alert">
+                <span class="material-symbols-outlined" id="errorIcon">warning</span>
+                <span id="errorText">Gagal melakukan verifikasi masuk</span>
+            </div>
 
-        <div class="copyright-footer">
-            <div>Transportation Management System</div>
-            <div style="margin-top: 0.3rem; font-size: 0.7rem; color: #94a3b8;">
-                Powered by &copy; Dhanielo-Marthinz IMS 2026
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="usernameInput">
+                        <span>Username</span>
+                    </label>
+                    <div class="input-container" id="usernameWrapper">
+                        <span class="material-symbols-outlined input-icon">account_circle</span>
+                        <input type="text" id="usernameInput" name="username" placeholder="Masukkan username" required
+                            autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="passwordInput">
+                        <span>Password</span>
+                    </label>
+                    <div class="input-container" id="passwordWrapper">
+                        <span class="material-symbols-outlined input-icon">lock</span>
+                        <input type="password" id="passwordInput" class="has-toggle" name="password"
+                            placeholder="Masukkan password" required autocomplete="current-password">
+                        <button type="button" class="toggle-pwd-btn" onclick="togglePass()"
+                            aria-label="Tampilkan atau sembunyikan password">
+                            <span class="material-symbols-outlined" id="toggleIcon">visibility</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span>Masuk ke Sistem</span>
+                    <span class="material-symbols-outlined btn-arrow">arrow_forward</span>
+                </button>
+            </form>
+
+            <div class="security-badge">
+                <span class="material-symbols-outlined">lock</span>
+                <span>Protected by 256-Bit SSL Encryption</span>
+            </div>
+
+            <div class="copyright-footer">
+                <div>Transportation &amp; Warehouse Management System</div>
+                <div class="powered-by">
+                    &copy; 2026 Dhanielo-Marthinz IMS &bull; All Rights Reserved
+                </div>
             </div>
         </div>
     </div>
@@ -399,36 +642,41 @@
             }
         }
 
-        // ─── Session Status Checker ───
+        // ─── Session Status Checker (URL Parameters) ───
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const errDiv = document.getElementById('errorMessage');
             const errText = document.getElementById('errorText');
+            const errIcon = document.getElementById('errorIcon');
             
             if (urlParams.get('timeout')) {
                 errText.textContent = 'Sesi Anda telah berakhir karena tidak ada aktivitas. Silakan login kembali.';
                 errDiv.style.display = 'flex';
-                errDiv.style.background = '#fff7ed';
-                errDiv.style.border = '1px solid #fdba74';
-                errDiv.style.color = '#c2410c';
+                errDiv.style.background = 'rgba(245, 158, 11, 0.12)';
+                errDiv.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+                errDiv.style.color = '#fcd34d';
+                errIcon.textContent = 'timer';
             } else if (urlParams.get('inactive')) {
                 errText.textContent = 'Akun Anda dinonaktifkan oleh Administrator. Silakan hubungi Admin untuk bantuan.';
                 errDiv.style.display = 'flex';
-                errDiv.style.background = '#fef2f2';
-                errDiv.style.border = '1px solid #fecaca';
-                errDiv.style.color = '#dc2626';
+                errDiv.style.background = 'rgba(239, 68, 68, 0.12)';
+                errDiv.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+                errDiv.style.color = '#fca5a5';
+                errIcon.textContent = 'block';
             } else if (urlParams.get('expired')) {
                 errText.textContent = 'Akun Anda telah kadaluarsa. Silakan hubungi Management untuk perpanjangan akun.';
                 errDiv.style.display = 'flex';
-                errDiv.style.background = '#fef2f2';
-                errDiv.style.border = '1px solid #fecaca';
-                errDiv.style.color = '#dc2626';
+                errDiv.style.background = 'rgba(239, 68, 68, 0.12)';
+                errDiv.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+                errDiv.style.color = '#fca5a5';
+                errIcon.textContent = 'event_busy';
             } else if (urlParams.get('maintenance')) {
                 errText.innerHTML = '<strong>Mode Maintenance Aktif:</strong> Sistem sedang dalam pemeliharaan. Hanya akun Teknisi (Daniel Imsula) yang diizinkan masuk.';
                 errDiv.style.display = 'flex';
-                errDiv.style.background = '#fffbeb';
-                errDiv.style.border = '1px solid #fde68a';
-                errDiv.style.color = '#b45309';
+                errDiv.style.background = 'rgba(245, 158, 11, 0.15)';
+                errDiv.style.border = '1px solid rgba(245, 158, 11, 0.45)';
+                errDiv.style.color = '#fbbf24';
+                errIcon.textContent = 'engineering';
             }
         });
 
@@ -438,6 +686,7 @@
             const btn = document.getElementById('submitBtn');
             const errDiv = document.getElementById('errorMessage');
             const errText = document.getElementById('errorText');
+            const errIcon = document.getElementById('errorIcon');
             const origHtml = btn.innerHTML;
 
             btn.disabled = true;
@@ -452,8 +701,8 @@
 
                 if (data.success) {
                     btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span><span>Berhasil! Mengalihkan...</span>';
-                    btn.style.background = '#10b981';
-                    btn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.3)';
+                    btn.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+                    btn.style.boxShadow = '0 0 30px rgba(16, 185, 129, 0.6)';
 
                     setTimeout(() => {
                         if (data.is_web) {
@@ -461,10 +710,14 @@
                         } else {
                             window.location.href = 'mobile_home.php';
                         }
-                    }, 800);
+                    }, 700);
                 } else {
                     errText.textContent = data.message || 'Username atau password salah.';
+                    errIcon.textContent = 'warning';
                     errDiv.style.display = 'flex';
+                    errDiv.style.background = 'rgba(239, 68, 68, 0.12)';
+                    errDiv.style.border = '1px solid rgba(239, 68, 68, 0.35)';
+                    errDiv.style.color = '#fca5a5';
 
                     // Trigger alert shake animation
                     errDiv.style.animation = 'none';
@@ -477,14 +730,18 @@
             } catch (err) {
                 console.error(err);
                 errText.textContent = 'Koneksi gagal. Periksa jaringan atau server Anda.';
+                errIcon.textContent = 'wifi_off';
                 errDiv.style.display = 'flex';
+                errDiv.style.background = 'rgba(239, 68, 68, 0.12)';
+                errDiv.style.border = '1px solid rgba(239, 68, 68, 0.35)';
+                errDiv.style.color = '#fca5a5';
 
                 btn.disabled = false;
                 btn.innerHTML = origHtml;
             }
         };
 
-        // Inject helper styles for button loading spinner
+        // Helper styles for button loading spinner
         const style = document.createElement('style');
         style.textContent = `
             @keyframes spin { 100% { transform: rotate(360deg); } }
