@@ -11,7 +11,7 @@ $can_write = canWriteMenu('roles');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Role | TMS</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png?v=3">
     <style>
         .role-preview-badge {
             display: inline-flex;

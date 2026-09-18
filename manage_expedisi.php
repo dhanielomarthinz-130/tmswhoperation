@@ -23,7 +23,7 @@ if ($user_role === 'admin') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Vendor Expedisi | TMS</title>
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png?v=3">
     <style>
         .modal-overlay {
             display: none;
