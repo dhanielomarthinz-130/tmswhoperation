@@ -519,7 +519,6 @@
                 <div>
                     <div class="badge-pill">
                         <span class="badge-dot"></span>
-                        <span>Somethinc • Beautyhaul Logistics</span>
                     </div>
                 </div>
 
