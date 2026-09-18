@@ -1,0 +1,14 @@
+# Ignore upload directory contents but keep the folder
+/uploads/*
+!/uploads/.gitkeep
+
+# Logs and debug output
+*.log
+db_out.txt
+scratch/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

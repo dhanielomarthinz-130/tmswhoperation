@@ -1,0 +1,44 @@
+name: Deploy to InfinityFree Hosting & Sync Database
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  web-deploy:
+    name: 🎉 Sync Code via FTP & Run Safe Migration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 📂 Deploy Files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER || 'ftpupload.net' }}
+          username: ${{ secrets.FTP_USERNAME || 'if0_38464190' }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /htdocs/
+          protocol: ftp
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github*
+            **/.github*/**
+            uploads/**
+            scratch/**
+            db_out.txt
+            *.log
+            README.md
+
+      - name: 🔄 Trigger Safe Database Migration (Optional Webhook)
+        run: |
+          echo "Triggering safe schema migration endpoint on InfinityFree..."
+          curl -s -m 20 "http://tmswhoperation.rf.gd/database_migration.php?token=${{ secrets.MIGRATION_TOKEN || 'TMS_SECRET_MIGRATE_2026' }}&format=json" || echo "Note: If direct HTTP trigger is challenged by InfinityFree anti-bot, you can also run Safe Migration with 1-click in the Super Admin dashboard (Kelola Database)."
+        continue-on-error: true
