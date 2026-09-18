@@ -423,6 +423,12 @@
                 errDiv.style.background = '#fef2f2';
                 errDiv.style.border = '1px solid #fecaca';
                 errDiv.style.color = '#dc2626';
+            } else if (urlParams.get('maintenance')) {
+                errText.innerHTML = '<strong>Mode Maintenance Aktif:</strong> Sistem sedang dalam pemeliharaan. Hanya akun Teknisi (Daniel Imsula) yang diizinkan masuk.';
+                errDiv.style.display = 'flex';
+                errDiv.style.background = '#fffbeb';
+                errDiv.style.border = '1px solid #fde68a';
+                errDiv.style.color = '#b45309';
             }
         });
 

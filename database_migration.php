@@ -289,6 +289,28 @@ try {
             KEY `fk_expedisi_vendor` (`vendor_id`),
             CONSTRAINT `expedisi_tasks_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`),
             CONSTRAINT `fk_expedisi_vendor` FOREIGN KEY (`vendor_id`) REFERENCES `expedisi_vendors` (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+        'task_notes' => "CREATE TABLE IF NOT EXISTS `task_notes` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `user_id` int(11) NOT NULL,
+            `title` varchar(255) NOT NULL,
+            `description` text DEFAULT NULL,
+            `note_date` date NOT NULL,
+            `note_time` time DEFAULT NULL,
+            `priority` enum('low','medium','high') DEFAULT 'medium',
+            `is_done` tinyint(1) DEFAULT 0,
+            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (`id`),
+            KEY `user_id` (`user_id`),
+            KEY `note_date` (`note_date`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
+        'system_settings' => "CREATE TABLE IF NOT EXISTS `system_settings` (
+            `setting_key` varchar(50) NOT NULL,
+            `setting_value` text DEFAULT NULL,
+            `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+            PRIMARY KEY (`setting_key`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     ];
 
@@ -300,6 +322,11 @@ try {
             logMsg("TABEL SUDAH ADA: `$name` (Data lama tetap aman).");
         }
     }
+
+    // Inisialisasi default system_settings jika belum ada
+    try {
+        $pdo->exec("INSERT INTO `system_settings` (`setting_key`, `setting_value`) VALUES ('maintenance_mode', '0') ON DUPLICATE KEY UPDATE setting_key=setting_key");
+    } catch (Exception $e) {}
 
     // 3. Pastikan kolom-kolom penting dan baru ada di tabel (Incremental Column Checks)
     // Kolom baru pada deliveries

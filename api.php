@@ -2210,6 +2210,15 @@ switch ($action) {
                 die(json_encode(['success' => false, 'message' => 'Akun Anda sudah kadaluarsa (Expired). Silakan hubungi Management untuk perpanjangan.']));
             }
 
+            // Check Maintenance Mode (Hanya Daniel Imsula / Teknisi yang boleh login jika Maintenance aktif)
+            if (isSystemMaintenanceMode($pdo) && !isDanielImsulaUser($user['name'], $user['username'])) {
+                logActivity('LOGIN_BLOCKED_MAINTENANCE', 'Login ditolak karena Mode Maintenance aktif (Username: ' . $username . ')');
+                die(json_encode([
+                    'success' => false,
+                    'message' => '⚠️ Sistem sedang dalam Mode Maintenance (Pemeliharaan). Saat ini hanya akun Teknisi (Daniel Imsula) yang diizinkan masuk.'
+                ]));
+            }
+
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['name'] = $user['name'];
@@ -2230,6 +2239,34 @@ switch ($action) {
         } else {
             logActivity('LOGIN_FAILED', 'Gagal login: Username atau password salah (Username: ' . $username . ')');
             echo json_encode(['success' => false, 'message' => 'Username atau password salah.']);
+        }
+        break;
+
+    case 'get_maintenance_status':
+        checkLogin();
+        echo json_encode([
+            'success' => true,
+            'maintenance' => isSystemMaintenanceMode($pdo)
+        ]);
+        break;
+
+    case 'toggle_maintenance_mode':
+        checkLogin();
+        if (($_SESSION['role'] ?? '') !== 'controller') {
+            die(json_encode(['success' => false, 'error' => 'Akses ditolak: Hanya Super Admin yang dapat mengatur Mode Maintenance.']));
+        }
+        $enable = (int)($_POST['enable'] ?? 0);
+        try {
+            $stmt = $pdo->prepare("INSERT INTO system_settings (setting_key, setting_value) VALUES ('maintenance_mode', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            $stmt->execute([$enable, $enable]);
+            logActivity('MAINTENANCE_TOGGLE', ($enable ? 'MENGAKTIFKAN' : 'MENONAKTIFKAN') . ' Mode Maintenance Sistem');
+            echo json_encode([
+                'success' => true,
+                'maintenance' => ($enable === 1),
+                'message' => $enable ? 'Mode Maintenance berhasil DIAKTIFKAN. Hanya akun Daniel Imsula yang dapat login.' : 'Mode Maintenance berhasil DINONAKTIFKAN. Seluruh user dapat kembali mengakses sistem.'
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => 'Gagal mengubah status: ' . $e->getMessage()]);
         }
         break;
 

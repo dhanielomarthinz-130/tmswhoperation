@@ -73,6 +73,26 @@ if (isset($_SESSION['user_id'])) {
                     exit();
                 }
             }
+
+            // 3. Real-time System Maintenance Mode Check
+            try {
+                if (isSystemMaintenanceMode($pdo)) {
+                    $sessName = $_SESSION['name'] ?? '';
+                    $sessUsername = $_SESSION['username'] ?? '';
+                    if (!isDanielImsulaUser($sessName, $sessUsername)) {
+                        session_unset();
+                        session_destroy();
+                        if ($is_api) {
+                            http_response_code(503);
+                            die(json_encode(['success' => false, 'error' => 'Sistem sedang dalam Mode Pemeliharaan (Maintenance). Hanya Teknisi (Daniel Imsula) yang diizinkan mengakses.']));
+                        } else {
+                            header("Location: login.php?maintenance=1");
+                            exit();
+                        }
+                    }
+                }
+            } catch (Exception $exMaint) {}
+
             // Auto-ensure default database permissions exist in role_permissions
             try {
                 $pdo->exec("INSERT INTO role_permissions (role_key, menu_key, can_access, can_write) VALUES ('controller', 'database', 1, 1), ('admin', 'database', 1, 1) ON DUPLICATE KEY UPDATE can_access = 1, can_write = 1");
@@ -81,6 +101,25 @@ if (isset($_SESSION['user_id'])) {
     } catch (PDOException $e) {
         // Silently continue if database is temporarily unavailable during session check
     }
+}
+
+// Function to check if system is in maintenance mode
+function isSystemMaintenanceMode($pdo) {
+    if (!$pdo) return false;
+    try {
+        $stmt = $pdo->query("SELECT setting_value FROM system_settings WHERE setting_key = 'maintenance_mode'");
+        $val = $stmt->fetchColumn();
+        return ($val === '1' || $val === 1);
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+// Function to check if a user is Daniel Imsula (Teknisi Master)
+function isDanielImsulaUser($name, $username) {
+    $name = strtolower(trim($name ?? ''));
+    $username = strtolower(trim($username ?? ''));
+    return (strpos($name, 'daniel imsula') !== false || ($username === 'daniel' || (strpos($username, 'daniel') !== false && strpos($username, 'imsula') !== false)));
 }
 
 // Function to check if user is logged in

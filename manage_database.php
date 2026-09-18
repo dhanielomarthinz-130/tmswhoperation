@@ -265,6 +265,32 @@ $can_write = true;
         </div>
 
         <?php if ($can_write): ?>
+        <!-- MAINTENANCE MODE CONTROLLER -->
+        <div class="card" style="background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="maintIconBox" style="width: 48px; height: 48px; border-radius: 12px; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="material-symbols-outlined" style="font-size: 26px;">engineering</span>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-main);">Mode Pemeliharaan Sistem (Maintenance Mode)</h3>
+                            <span id="maintStatusBadge" style="padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">MEMUAT...</span>
+                        </div>
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-sub);">
+                            Jika diaktifkan, seluruh pengguna sistem otomatis dikunci/keluar dan hanya user <strong>Daniel Imsula</strong> (sebagai Teknisi) yang dapat login dan mengakses sistem.
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <button type="button" id="btnToggleMaint" onclick="toggleMaintenance()" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 700; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.2s; background: #dc2626; color: white; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);">
+                        <span class="material-symbols-outlined">power_settings_new</span>
+                        <span id="btnToggleMaintText">Aktifkan Maintenance</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- PRESET QUICK ACTIONS -->
         <div class="quick-actions-bar">
             <div class="quick-actions-title">
@@ -518,6 +544,89 @@ $can_write = true;
                 alert('Koneksi ke server gagal.');
                 if (btnDelete) btnDelete.disabled = false;
             }
+        // ===== MAINTENANCE MODE CONTROLLER =====
+        let isMaintenanceActive = false;
+
+        async function loadMaintenanceStatus() {
+            try {
+                const res = await fetch(`${API_URL}?action=get_maintenance_status`);
+                const data = await res.json();
+                if (data.success) {
+                    isMaintenanceActive = data.maintenance;
+                    updateMaintenanceUI();
+                }
+            } catch (e) {
+                console.error('Error fetching maintenance status:', e);
+            }
+        }
+
+        function updateMaintenanceUI() {
+            const badge = document.getElementById('maintStatusBadge');
+            const btn = document.getElementById('btnToggleMaint');
+            const btnText = document.getElementById('btnToggleMaintText');
+            const iconBox = document.getElementById('maintIconBox');
+
+            if (!badge || !btn) return;
+
+            if (isMaintenanceActive) {
+                badge.textContent = 'AKTIF (HANYA DANIEL IMSULA)';
+                badge.style.background = '#fef2f2';
+                badge.style.color = '#dc2626';
+                badge.style.borderColor = '#fca5a5';
+
+                iconBox.style.background = '#fef2f2';
+                iconBox.style.color = '#dc2626';
+
+                btn.style.background = '#16a34a';
+                btn.style.boxShadow = '0 4px 12px rgba(22, 163, 74, 0.25)';
+                btnText.textContent = 'Matikan Maintenance (Normal)';
+            } else {
+                badge.textContent = 'NONAKTIF (NORMAL)';
+                badge.style.background = '#ecfdf5';
+                badge.style.color = '#059669';
+                badge.style.borderColor = '#a7f3d0';
+
+                iconBox.style.background = '#f8fafc';
+                iconBox.style.color = '#475569';
+
+                btn.style.background = '#dc2626';
+                btn.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.25)';
+                btnText.textContent = 'Aktifkan Mode Maintenance';
+            }
+        }
+
+        async function toggleMaintenance() {
+            const targetAction = isMaintenanceActive ? 'Menonaktifkan' : 'Mengaktifkan';
+            const confirmMsg = isMaintenanceActive 
+                ? 'Kembalikan sistem ke mode normal? Seluruh user akan dapat kembali mengakses sistem.' 
+                : 'PENTING: Mengaktifkan Maintenance Mode akan mengeluarkan seluruh pengguna lain dan hanya akun Daniel Imsula (Teknisi) yang dapat login. Lanjutkan?';
+
+            if (!confirm(confirmMsg)) return;
+
+            const btn = document.getElementById('btnToggleMaint');
+            btn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('enable', isMaintenanceActive ? '0' : '1');
+
+                const res = await fetch(`${API_URL}?action=toggle_maintenance_mode`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.success) {
+                    isMaintenanceActive = data.maintenance;
+                    updateMaintenanceUI();
+                    alert(data.message);
+                } else {
+                    alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan koneksi.');
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         // Helper style for spinner
@@ -526,6 +635,7 @@ $can_write = true;
         document.head.appendChild(style);
 
         loadTables();
+        loadMaintenanceStatus();
     </script>
 </body>
 
