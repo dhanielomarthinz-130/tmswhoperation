@@ -43,14 +43,30 @@ $is_mgmt_open = (
         <span class="material-symbols-outlined">chevron_left</span>
     </button>
     <!-- Brand area -->
-    <a href="<?php echo ($role == 'driver') ? 'driver' : 'dashboard_summary'; ?>" class="sidebar-brand">
-        <div class="sidebar-brand-icon" style="background:none; box-shadow:none; padding:0; overflow:hidden; border-radius:10px;">
+    <a href="<?php echo ($role == 'driver') ? 'driver' : 'dashboard_summary'; ?>" class="sidebar-brand" style="flex-direction:column; align-items:flex-start; padding:1rem 1rem 0.75rem; gap:0.5rem;">
+        <!-- Company Logo - visible in expanded state -->
+        <div class="sidebar-brand-logo" style="
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        ">
             <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="PT Royal Pesona Indonesia"
-                 style="width:36px; height:36px; object-fit:cover; border-radius:8px; display:block; flex-shrink:0;">
+                 style="height:38px; width:auto; max-width:100%; object-fit:contain; display:block;">
         </div>
-        <div class="sidebar-brand-text">
+        <!-- Compact icon for collapsed sidebar state -->
+        <div class="sidebar-brand-icon-sm" style="display:none; width:36px; height:36px; border-radius:8px; overflow:hidden; background:#fff; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.25);">
+            <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="Logo"
+                 style="width:36px; height:36px; object-fit:cover;">
+        </div>
+        <div class="sidebar-brand-text" style="margin-top:2px;">
             <strong>T M S - Warehouse</strong>
-            <small>Somethinc - Beautyhaul</small>
+            <small>PT Royal Pesona Indonesia</small>
         </div>
     </a>
 

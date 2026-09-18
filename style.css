@@ -149,10 +149,20 @@ body {
 }
 
 .sidebar.collapsed .sidebar-brand {
-    padding: 1.5rem 0;
+    padding: 1rem 0.5rem;
     justify-content: center;
+    align-items: center;
     gap: 0;
+    flex-direction: row;
     border-bottom-color: transparent;
+}
+
+.sidebar.collapsed .sidebar-brand-logo {
+    display: none !important;
+}
+
+.sidebar.collapsed .sidebar-brand-icon-sm {
+    display: flex !important;
 }
 
 .sidebar.collapsed .sidebar-brand-icon {
