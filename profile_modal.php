@@ -296,7 +296,7 @@
 </style>
 
 <!-- ===== Profile Modal HTML ===== -->
-<div id="profileModal" onclick="if(event.target===this) closeProfileModal()">
+<div id="profileModal" style="display: none;" onclick="if(event.target===this) closeProfileModal()">
     <div class="pm-box">
         <!-- Header -->
         <div class="pm-header">
@@ -392,6 +392,7 @@
     // ── Open ──────────────────────────────────────────────────────────────
     window.openProfileModal = async function () {
         const modal = document.getElementById('profileModal');
+        modal.style.display = 'flex';
         modal.classList.add('show');
 
         // Reset form & message
@@ -445,7 +446,9 @@
 
     // ── Close ─────────────────────────────────────────────────────────────
     window.closeProfileModal = function () {
-        document.getElementById('profileModal').classList.remove('show');
+        const modal = document.getElementById('profileModal');
+        modal.classList.remove('show');
+        modal.style.display = 'none';
     };
 
     // ── Toggle password visibility ────────────────────────────────────────

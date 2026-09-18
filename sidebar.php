@@ -619,7 +619,10 @@ $is_mgmt_open = (
 
     window.closeGlobalNotification = function () {
         const notif = document.getElementById('globalTaskNotification');
-        if (notif) notif.classList.remove('show');
+        if (notif) {
+            notif.classList.remove('show');
+            setTimeout(() => { notif.style.display = 'none'; }, 400);
+        }
         sessionStorage.setItem('task_notif_dismissed', '1');
     };
 
@@ -673,6 +676,7 @@ $is_mgmt_open = (
                 // Auto-dismiss after 12 seconds
                 setTimeout(() => {
                     notif.classList.remove('show');
+                    setTimeout(() => { notif.style.display = 'none'; }, 400);
                 }, 13500);
             }
         } catch (e) {
@@ -724,6 +728,7 @@ $is_mgmt_open = (
 
             setTimeout(() => {
                 notif.classList.remove('show');
+                setTimeout(() => { notif.style.display = 'none'; }, 400);
             }, 14000);
         } catch (e) {
             console.error('Time-alarm check error:', e);

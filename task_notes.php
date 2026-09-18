@@ -160,20 +160,18 @@ $user_role = $_SESSION['role'] ?? 'staff';
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.65);
-            z-index: 10000;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 99999 !important;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             padding: 1.5rem;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            pointer-events: auto !important;
         }
 
         .modal-overlay.show {
             display: flex !important;
-            opacity: 1;
         }
 
         .modal-card {
@@ -182,8 +180,20 @@ $user_role = $_SESSION['role'] ?? 'staff';
             width: 100%;
             max-width: 480px;
             padding: 1.75rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
             animation: modalFadeIn 0.25s ease-out;
+            position: relative;
+            z-index: 100000 !important;
+            pointer-events: auto !important;
+        }
+
+        .modal-card input,
+        .modal-card select,
+        .modal-card textarea,
+        .modal-card button {
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 100001 !important;
         }
 
         @keyframes modalFadeIn {
@@ -221,7 +231,7 @@ $user_role = $_SESSION['role'] ?? 'staff';
                 </div>
             </div>
             <div class="page-actions">
-                <button class="btn btn-primary" onclick="openAddModal()" style="background: #064e3b; color: white; border: none; padding: 0.65rem 1.35rem; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);">
+                <button class="btn btn-primary" onclick="openAddModal()" style="background: #0284c7; color: white; border: none; padding: 0.65rem 1.35rem; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);">
                     <span class="material-symbols-outlined">add_task</span>
                     Tambah Task Baru
                 </button>
@@ -301,11 +311,11 @@ $user_role = $_SESSION['role'] ?? 'staff';
     </div>
 
     <!-- Modal Form Catatan Task -->
-    <div id="noteModal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)closeNoteModal()">
-        <div class="modal-card">
+    <div id="noteModal" class="modal-overlay" style="display: none; z-index: 100000 !important;" onclick="if(event.target===this)closeNoteModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <h3 id="modalTitle" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text);">Tambah Catatan Task</h3>
-                <button type="button" onclick="closeNoteModal()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+                <button type="button" onclick="closeNoteModal()" style="background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px;">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
@@ -316,7 +326,7 @@ $user_role = $_SESSION['role'] ?? 'staff';
                 <div style="margin-bottom: 1rem;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text);">Judul Task *</label>
                     <input type="text" id="noteTitle" name="title" required placeholder="Contoh: Follow up koli transit gudang A"
-                           style="width: 100%; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid var(--border); font-size: 0.9rem; outline: none;">
+                           style="width: 100%; padding: 0.65rem 0.85rem; border-radius: 10px; border: 1px solid var(--border); font-size: 0.9rem; outline: none; transition: border-color 0.2s;">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
@@ -349,14 +359,14 @@ $user_role = $_SESSION['role'] ?? 'staff';
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
                     <button type="button" onclick="closeNoteModal()" class="btn btn-ghost" style="padding: 0.6rem 1.25rem; border-radius: 10px; border: 1px solid var(--border); background: #f8fafc; cursor: pointer; font-weight: 600;">Batal</button>
-                    <button type="submit" id="btnSubmitNote" class="btn btn-primary" style="background: #064e3b; color: white; border: none; padding: 0.6rem 1.5rem; border-radius: 10px; font-weight: 700; cursor: pointer;">Simpan Catatan</button>
+                    <button type="submit" id="btnSubmitNote" class="btn btn-primary" style="background: #0284c7; color: white; border: none; padding: 0.65rem 1.6rem; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);">Simpan Catatan</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Toast Notification Container -->
-    <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 99999;"></div>
+    <div id="toastContainer" style="position: fixed; bottom: 20px; right: 20px; z-index: 99999; pointer-events: none;"></div>
 
     <script>
         let currentFilter = 'today';
@@ -516,7 +526,14 @@ $user_role = $_SESSION['role'] ?? 'staff';
             document.getElementById('notePriority').value = 'medium';
             document.getElementById('noteDescription').value = '';
             modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            modal.classList.add('show');
+            setTimeout(() => {
+                const input = document.getElementById('noteTitle');
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }, 50);
         }
 
         function editNote(id) {
@@ -532,15 +549,19 @@ $user_role = $_SESSION['role'] ?? 'staff';
             document.getElementById('notePriority').value = note.priority || 'medium';
             document.getElementById('noteDescription').value = note.description || '';
             modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            modal.classList.add('show');
+            setTimeout(() => {
+                const input = document.getElementById('noteTitle');
+                if (input) {
+                    input.focus();
+                }
+            }, 50);
         }
 
         function closeNoteModal() {
             const modal = document.getElementById('noteModal');
             modal.classList.remove('show');
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 200);
+            modal.style.display = 'none';
         }
 
         // Close on Escape key press
