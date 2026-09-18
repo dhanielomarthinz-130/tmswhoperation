@@ -44,8 +44,9 @@ $is_mgmt_open = (
     </button>
     <!-- Brand area -->
     <a href="<?php echo ($role == 'driver') ? 'driver' : 'dashboard_summary'; ?>" class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-            <span class="material-symbols-outlined">local_shipping</span>
+        <div class="sidebar-brand-icon" style="background:none; box-shadow:none; padding:0; overflow:hidden; border-radius:10px;">
+            <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="PT Royal Pesona Indonesia"
+                 style="width:36px; height:36px; object-fit:cover; border-radius:8px; display:block; flex-shrink:0;">
         </div>
         <div class="sidebar-brand-text">
             <strong>T M S - Warehouse</strong>

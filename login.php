@@ -51,66 +51,38 @@
             align-items: center;
             justify-content: center;
             background-color: var(--bg-deep);
+            background-image: url('assets/login_bg.png');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--text-main);
             padding: 1.5rem;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* ─── Ambient Glow Mesh Background ─── */
-        .bg-mesh {
+        /* ─── Dark overlay on top of background image ─── */
+        .bg-overlay {
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
-            overflow: hidden;
+            background: linear-gradient(
+                135deg,
+                rgba(8, 13, 26, 0.78) 0%,
+                rgba(5, 10, 20, 0.72) 50%,
+                rgba(10, 20, 40, 0.80) 100%
+            );
         }
 
-        .mesh-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.45;
-            will-change: transform;
-            animation: orbFloat 18s ease-in-out infinite alternate;
-        }
-
-        .mesh-orb-1 {
-            width: 520px;
-            height: 520px;
-            background: radial-gradient(circle, #059669 0%, rgba(6, 182, 212, 0.4) 60%, transparent 80%);
-            top: -120px;
-            left: -100px;
-        }
-
-        .mesh-orb-2 {
-            width: 580px;
-            height: 580px;
-            background: radial-gradient(circle, #4f46e5 0%, rgba(16, 185, 129, 0.3) 60%, transparent 80%);
-            bottom: -150px;
-            right: -120px;
-            animation-duration: 22s;
-            animation-delay: -5s;
-        }
-
-        .mesh-orb-3 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, transparent 70%);
-            top: 45%;
-            left: 55%;
-            animation-duration: 16s;
-            animation-delay: -10s;
-        }
-
-        /* Subtle Grid Pattern */
+        /* Subtle dot grid overlay */
         .bg-grid {
             position: fixed;
             inset: 0;
             z-index: 1;
             pointer-events: none;
-            background-image: 
-                radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
             background-size: 32px 32px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
             -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
@@ -537,12 +509,8 @@
 </head>
 
 <body>
-    <!-- Ambient Animated Mesh Gradient -->
-    <div class="bg-mesh">
-        <div class="mesh-orb mesh-orb-1"></div>
-        <div class="mesh-orb mesh-orb-2"></div>
-        <div class="mesh-orb mesh-orb-3"></div>
-    </div>
+    <!-- Background overlay layers (pointer-events:none so inputs work) -->
+    <div class="bg-overlay"></div>
     <div class="bg-grid"></div>
 
     <div class="login-wrapper">
@@ -556,7 +524,7 @@
                 </div>
 
                 <div class="logo-box">
-                    <img src="favicon.png" alt="TMS Logo">
+                    <img src="assets/PT-Royal-Pesona-Indonesia.jpg" alt="PT Royal Pesona Indonesia" style="width:52px;height:52px;border-radius:10px;object-fit:cover;">
                 </div>
 
                 <h1>TMS <span class="brand-highlight">Warehouse</span></h1>
