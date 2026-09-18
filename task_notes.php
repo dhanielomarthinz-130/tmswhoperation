@@ -160,16 +160,20 @@ $user_role = $_SESSION['role'] ?? 'staff';
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.65);
             z-index: 10000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             padding: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
         .modal-overlay.show {
-            display: flex;
+            display: flex !important;
+            opacity: 1;
         }
 
         .modal-card {
@@ -206,14 +210,20 @@ $user_role = $_SESSION['role'] ?? 'staff';
                     <span class="material-symbols-outlined" style="font-size: 28px;">checklist</span>
                 </div>
                 <div>
-                    <h1 style="font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text);">Catatan Task Harian</h1>
-                    <p style="font-size: 0.875rem; color: var(--text-muted); margin: 2px 0 0 0;">Manajemen agenda kerja, tugas, dan pengingat aktivitas personal</p>
+                    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                        <h1 style="font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text);">Catatan Task Pribadi</h1>
+                        <span style="background: rgba(16, 185, 129, 0.12); color: #065f46; border: 1px solid rgba(16, 185, 129, 0.3); padding: 3px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                            <span class="material-symbols-outlined" style="font-size: 15px; color: #10b981;">lock</span>
+                            Privat: Hanya Akun Anda (<?php echo htmlspecialchars($user_name); ?>)
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 3px 0 0 0;">Agenda kerja &amp; catatan personal — bersifat rahasia dan tidak dapat dilihat atau diakses oleh user lain.</p>
                 </div>
             </div>
             <div class="page-actions">
-                <button class="btn btn-primary" onclick="openAddModal()" style="background: #064e3b; color: white; border: none; padding: 0.6rem 1.25rem; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <button class="btn btn-primary" onclick="openAddModal()" style="background: #064e3b; color: white; border: none; padding: 0.65rem 1.35rem; border-radius: 10px; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(6, 78, 59, 0.2);">
                     <span class="material-symbols-outlined">add_task</span>
-                    Tambah Catatan Baru
+                    Tambah Task Baru
                 </button>
             </div>
         </div>
@@ -291,7 +301,7 @@ $user_role = $_SESSION['role'] ?? 'staff';
     </div>
 
     <!-- Modal Form Catatan Task -->
-    <div id="noteModal" class="modal-overlay">
+    <div id="noteModal" class="modal-overlay" style="display: none;" onclick="if(event.target===this)closeNoteModal()">
         <div class="modal-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                 <h3 id="modalTitle" style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--text);">Tambah Catatan Task</h3>
@@ -497,6 +507,7 @@ $user_role = $_SESSION['role'] ?? 'staff';
         }
 
         function openAddModal() {
+            const modal = document.getElementById('noteModal');
             document.getElementById('modalTitle').textContent = 'Tambah Catatan Task';
             document.getElementById('noteId').value = '';
             document.getElementById('noteTitle').value = '';
@@ -504,13 +515,15 @@ $user_role = $_SESSION['role'] ?? 'staff';
             document.getElementById('noteTime').value = '';
             document.getElementById('notePriority').value = 'medium';
             document.getElementById('noteDescription').value = '';
-            document.getElementById('noteModal').classList.add('show');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
         }
 
         function editNote(id) {
             const note = allNotes.find(n => parseInt(n.id) === parseInt(id));
             if (!note) return;
 
+            const modal = document.getElementById('noteModal');
             document.getElementById('modalTitle').textContent = 'Ubah Catatan Task';
             document.getElementById('noteId').value = note.id;
             document.getElementById('noteTitle').value = note.title;
@@ -518,12 +531,22 @@ $user_role = $_SESSION['role'] ?? 'staff';
             document.getElementById('noteTime').value = note.note_time || '';
             document.getElementById('notePriority').value = note.priority || 'medium';
             document.getElementById('noteDescription').value = note.description || '';
-            document.getElementById('noteModal').classList.add('show');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
         }
 
         function closeNoteModal() {
-            document.getElementById('noteModal').classList.remove('show');
+            const modal = document.getElementById('noteModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 200);
         }
+
+        // Close on Escape key press
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeNoteModal();
+        });
 
         async function saveNote(e) {
             e.preventDefault();
